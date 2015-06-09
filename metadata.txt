@@ -10,7 +10,7 @@
 name=Flow Estimator
 qgisMinimumVersion=2.0
 description=Estimates steady, uniform flow using the Manning equation for trapezoidal and DEM sampled channels.  Intended for use by engineers and hydrologists.  Requires  shapely, numpy, and matplotlib libraires
-version=0.12
+version=0.13
 author=M. Weier - North Dakota State Water Commision
 email=mweier@nd.gov
 
@@ -20,6 +20,7 @@ email=mweier@nd.gov
 
 # Uncomment the following line and add your changelog:
 changelog=
+		0.13 - fixed custom CRS bug
 		0.12 - added readme.md
 		0.11 - added user defined channel option
 

@@ -66,7 +66,6 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
         self.btnSampleLine.setEnabled(False)
         self.btnSampleSlope.setEnabled(False)
         self.calcType = 'Trap'
-        self.mouseListening = False
       
         # add matplotlib figure to dialog
         self.figure = Figure()
@@ -107,10 +106,7 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
      
         self.btnSampleLine.clicked.connect(self.sampleLine)
         self.btnSampleSlope.clicked.connect(self.sampleSlope)
-        
-        if self.mouseListening:
-            self.btnClose.clicked.connect(self.clean)
-        
+
 
 
     def manageGui(self):
@@ -335,7 +331,6 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
             
     def connectTool(self):
         print 'connecting'
-        self.mouseListening = True
         QObject.connect(self.tool, SIGNAL("moved"), self.moved)
 #        self.tool.moved.connect(self.moved)
         QObject.connect(self.tool, SIGNAL("rightClicked"), self.rightClicked)
@@ -349,7 +344,6 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
         QObject.disconnect(self.tool, SIGNAL("leftClicked"), self.leftClicked)
         QObject.disconnect(self.tool, SIGNAL("rightClicked"), self.rightClicked)
         QObject.disconnect(self.tool, SIGNAL("doubleClicked"), self.doubleClicked)
-        self.mouseListening = False
 #        self.rubberband.reset(self.polygon)
 #        self.iface.mainWindow().statusBar().showMessage("")
         
@@ -376,7 +370,11 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
 #==============================================================================
     
     def doRubberbandProfile(self):
-        layer = utils.getRasterLayerByName(self.cbDEM.currentText().split(' EPSG')[0])
+        layerString = self.cbDEM.currentText()
+        if ' EPSG' in layerString:
+            layer = utils.getRasterLayerByName(layerString.split(' EPSG')[0])
+        else:
+            layer = utils.getRasterLayerByName(layerString.split(' USER')[0])
         if layer.isValid():
             self.xRes = layer.rasterUnitsPerPixelX()
         line = LineString(self.pointstoDraw[:-1]) 
