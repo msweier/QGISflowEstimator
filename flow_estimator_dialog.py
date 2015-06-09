@@ -371,10 +371,7 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
     
     def doRubberbandProfile(self):
         layerString = self.cbDEM.currentText()
-        if ' EPSG' in layerString:
-            layer = utils.getRasterLayerByName(layerString.split(' EPSG')[0])
-        else:
-            layer = utils.getRasterLayerByName(layerString.split(' USER')[0])
+        layer = utils.getRasterLayerByName(' '.join(layerString.split(' ')[:-1]))
         if layer.isValid():
             self.xRes = layer.rasterUnitsPerPixelX()
         line = LineString(self.pointstoDraw[:-1]) 
