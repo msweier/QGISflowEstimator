@@ -164,6 +164,7 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
         elif self.tabWidget.currentIndex() == 1:
             try:
                 self.calcType = 'DEM'
+#                print self.cbWSE.value(), self.n.value(), self.slope.value(), self.staElev, self.units
                 self.args = flowEstimator(self.cbWSE.value(), self.n.value(), self.slope.value(), staElev = self.staElev, units = self.units)
                 self.plotter()
             except:
@@ -212,7 +213,7 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
         else:
             self.tool = ProfiletoolMapTool(self.canvas, self.btnSampleSlope)        #the mouselistener
         self.pointstoDraw = None    #Polyline in mapcanvas CRS analysed
-        self.dblclktemp = None        #enable disctinction between leftclick and doubleclick
+        self.dblclktemp = False        #enable disctinction between leftclick and doubleclick
         self.selectionmethod = 0                        #The selection method defined in option
         self.saveTool = self.canvas.mapTool()            #Save the standard mapttool for restoring it at the end
         self.textquit0 = "Click for polyline and double click to end (right click to cancel then quit)"
@@ -415,7 +416,7 @@ class FlowEstimatorDialog(QtGui.QDialog, FORM_CLASS):
             return 
         maxElev = np.array([lbMaxEl,rbMaxEl]).min()-.01
         WSE = maxElev
-        #WSE = (self.staElev[:,1].max() - self.staElev[:,1].min())/2. + self.staElev[:,1].min()
+        WSE = (self.staElev[:,1].max() - self.staElev[:,1].min())/2. + self.staElev[:,1].min()
         if self.tabWidget.currentIndex() == 1:
             self.cbWSE.setValue(WSE)
             self.cbWSE.setMinimum(minElev)

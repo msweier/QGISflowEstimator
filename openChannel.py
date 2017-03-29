@@ -6,9 +6,6 @@ Created on Tue May  5 16:26:25 2015
 """
 #import matplotlib.pyplot as plt
 import numpy as np
-from shapely.geometry import LineString  
-
-
 
 
 def channelBuilder(wsDepth, rightSS, leftSS, widthBottom):
@@ -31,7 +28,7 @@ def lineIntersection(line1, line2):
     div = det(xdiff, ydiff)
     if div == 0:
         x = y = np.nan
-        print 'lines do not intersect'
+#        print 'lines do not intersect'
         return x, y
 
     d = (det(*line1), det(*line2))
@@ -77,50 +74,38 @@ def flowEstimator(wsElev, n, channelSlope, **kwargs):
     else:
         const = 1.49
     
-#    intersectList = []
-#    for i in range(0, len(staElev)):
-#        x, y = lineIntersection((staElev[i-1], staElev[i]), ([staElev[0][0],wsElev], [staElev[-1][0],wsElev]))  
-#        if x >= staElev[i-1][0] and x <= staElev[i][0] and abs(y - wsElev)<0.01:
-#            #print x,y
-#            intersectList.append((x,y))
-#        else:
-#            
-#            #print 'line segments do not intersect'
-#            pass
-#    intersectArray = np.array(intersectList)
-#    intersectArray = intersectArray[intersectArray[:,0].argsort()]
-#    if len(intersectArray) > 2:
-#        print 'more than two points intersect'
-#        staMinElev = staElev[np.where(staElev[:,1]==min(staElev[:,1]))][0][0]
-#        startPoint = intersectArray[np.where(intersectArray[:,0]<staMinElev)][-1]
-#        endPoint = intersectArray[np.where(intersectArray[:,0]>staMinElev)][0]
-        #intersectArray = np.vstack([startPoint, endPoint])
+    intersectList = []
+    for i in range(0, len(staElev)):
+        x, y = lineIntersection((staElev[i-1], staElev[i]), ([staElev[0][0],wsElev], [staElev[-1][0],wsElev]))  
+        if x >= staElev[i-1][0] and x <= staElev[i][0] and abs(y - wsElev)<0.01:
+            #print x,y
+            intersectList.append((x,y))
+        else:
+            
+            #print 'line segments do not intersect'
+            pass
+    intersectArray = np.array(intersectList)
+    intersectArray = intersectArray[intersectArray[:,0].argsort()]
+    if len(intersectArray) > 2:
+        print 'more than two points intersect'
+        staMinElev = staElev[np.where(staElev[:,1]==min(staElev[:,1]))][0][0]
+        startPoint = intersectArray[np.where(intersectArray[:,0]<staMinElev)][-1]
+        endPoint = intersectArray[np.where(intersectArray[:,0]>staMinElev)][0]
+        intersectArray = np.vstack([startPoint, endPoint])
+        
+    staMin = np.min(intersectArray[:,0])
+    staMax = np.max(intersectArray[:,0])
+    
     thalweig = staElev[np.where(staElev[:,1] == np.min(staElev[:,1]))] 
-    thalweigX = thalweig[:,0][0]
+
     minElev = thalweig[:,1][0]
     maxDepth = wsElev-minElev
-    groundLine = LineString(staElev) 
-    wsLine = LineString([[np.min(staElev[:,0]), wsElev], [np.max(staElev[:,0]), wsElev]])
-    intersectArray = np.array(groundLine.intersection(wsLine))
-    
-    
-    try:
-        intersectArray = np.vstack([intersectArray[np.where(intersectArray[:,0]<thalweigX)][-1], intersectArray[np.where(intersectArray[:,0]>thalweigX)][0]])
-        
-    except:
-        #print 'error'
-        return 0, 0, 0, 0, 0, 0, staElev[:,0], staElev[:,1],staElev[:,0], staElev[:,0], np.ones(len(staElev[:,0]))*wsElev, staElev[:,0]
-    
-
-    
-    staMin = np.min(intersectArray[:,0])
-    staMax = np.max(intersectArray[:,0]) 
     
 
     staElevTrim = np.vstack([intersectArray[0], staElev, intersectArray[1]])
     #staElevTrim = staElevTrim[staElevTrim[:,0].argsort()]
     staElevTrim = staElevTrim[np.where((staElevTrim[:,0]>=staMin) & (staElevTrim[:,0]<=staMax))]
-    
+  
     area = polygonArea(staElevTrim)
     R = area/channelPerimeter(staElevTrim)
     v = (const/n)*np.power(R,(2./3.0))*np.sqrt(channelSlope)
@@ -134,6 +119,7 @@ def flowEstimator(wsElev, n, channelSlope, **kwargs):
     yWater0 = staElevTrim[:,1]  
     args = R, area, topWidth, Q, v, maxDepth, xGround, yGround, yGround0, xWater, yWater, yWater0
     return args
+
 
 #def plotter(args):
 #    R, area, topWidth, Q, v, xGround, yGround, yGround0, xWater, yWater, yWater0 = args
